@@ -1,10 +1,23 @@
 package noleak
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 	"strings"
 	"testing"
 )
+
+func CheckMain(m *testing.M) {
+	before := routines()
+	code := m.Run()
+	active := routines().subtract(before)
+	if len(active) > 0 {
+		fmt.Printf("%d still active:\n%s", len(active), active.String())
+		code = 1
+	}
+	os.Exit(code)
+}
 
 func Check(t *testing.T) {
 	t.Helper()

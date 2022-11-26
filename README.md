@@ -5,7 +5,7 @@ It compares the list of active goroutines before and after the test and raises a
 See [example_test.go](example_test.go).
 
 ```sh
-GODEBUG="tracebackancestors=1" go test -count=1 . -v
+GODEBUG="tracebackancestors=1" go test . -tags=example,main
 ```
 
 ## Credits

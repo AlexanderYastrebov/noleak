@@ -1,3 +1,5 @@
+//go:build example
+
 package noleak_test
 
 import (

@@ -57,7 +57,10 @@ func routines() goroutines {
 	result := make(map[string]string)
 	for _, g := range strings.Split(stack(), "\n\n") {
 		header, _, _ := strings.Cut(g, "\n")
-		result[header] = g
+		// goroutine 8 [chan receive]:
+		// goroutine 8 [runnable]:
+		id, _, _ := strings.Cut(header, "[")
+		result[id] = g
 	}
 	return result
 }

@@ -13,25 +13,34 @@ func Check(t *testing.T) {
 		t.Helper()
 		//time.Sleep(100 * time.Millisecond)
 
-		after := routines()
-		for header := range before {
-			delete(after, header)
+		active := routines().subtract(before)
+		if len(active) > 0 {
+			t.Errorf("%d still active:\n%s", len(active), active.String())
 		}
-		if len(after) == 0 {
-			return
-		}
-		var stacks strings.Builder
-		for _, g := range after {
-			if stacks.Len() > 0 {
-				stacks.WriteString("\n\n")
-			}
-			stacks.WriteString(g)
-		}
-		t.Errorf("%d still active:\n%s", len(after), stacks.String())
 	})
 }
 
-func routines() map[string]string {
+type goroutines map[string]string
+
+func (a goroutines) String() string {
+	var b strings.Builder
+	for _, g := range a {
+		if b.Len() > 0 {
+			b.WriteString("\n\n")
+		}
+		b.WriteString(g)
+	}
+	return b.String()
+}
+
+func (a goroutines) subtract(b goroutines) goroutines {
+	for k := range b {
+		delete(a, k)
+	}
+	return a
+}
+
+func routines() goroutines {
 	result := make(map[string]string)
 	for _, g := range strings.Split(stack(), "\n\n") {
 		header, _, _ := strings.Cut(g, "\n")

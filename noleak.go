@@ -2,7 +2,6 @@ package noleak
 
 import (
 	"fmt"
-	"os"
 	"runtime"
 	"strings"
 	"testing"
@@ -13,15 +12,15 @@ var (
 	checkTimeout = 1 * time.Second
 )
 
-func CheckMain(m *testing.M) {
+func CheckMain(m *testing.M) (code int) {
 	snapshot := routines()
-	code := m.Run()
+	code = m.Run()
 	active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 	if len(active) > 0 {
 		fmt.Printf("noleak: %d still active:\n%s", len(active), active.String())
 		code = 1
 	}
-	os.Exit(code)
+	return
 }
 
 func Check(t *testing.T) {

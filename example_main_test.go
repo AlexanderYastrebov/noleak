@@ -3,11 +3,12 @@
 package noleak_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/AlexanderYastrebov/noleak"
 )
 
 func TestMain(m *testing.M) {
-	noleak.CheckMain(m)
+	os.Exit(noleak.CheckMain(m))
 }

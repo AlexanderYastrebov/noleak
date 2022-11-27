@@ -4,28 +4,33 @@ package noleak_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlexanderYastrebov/noleak"
 )
 
 type leaky struct {
-	ch chan struct{}
+	ch chan time.Duration
 }
 
 func newLeaky() *leaky {
 	return &leaky{
-		ch: make(chan struct{}),
+		ch: make(chan time.Duration),
 	}
 }
 
-func (l leaky) run() {
+func (l *leaky) run() {
 	go func() {
-		<-l.ch
+		time.Sleep(<-l.ch)
 	}()
 }
 
-func (l leaky) done() {
-	close(l.ch)
+func (l *leaky) doneAfter(d time.Duration) {
+	l.ch <- d
+}
+
+func (l *leaky) done() {
+	l.doneAfter(10 * time.Millisecond)
 }
 
 func TestWetDisabled(t *testing.T) {
@@ -53,6 +58,7 @@ func TestWet(t *testing.T) {
 	l1.done()
 	//l2.done()
 }
+
 func TestDry(t *testing.T) {
 	noleak.Check(t)
 

@@ -6,12 +6,17 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
+)
+
+var (
+	checkTimeout = 1 * time.Second
 )
 
 func CheckMain(m *testing.M) {
-	before := routines()
+	snapshot := routines()
 	code := m.Run()
-	active := routines().subtract(before)
+	active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 	if len(active) > 0 {
 		fmt.Printf("%d still active:\n%s", len(active), active.String())
 		code = 1
@@ -21,12 +26,11 @@ func CheckMain(m *testing.M) {
 
 func Check(t *testing.T) {
 	t.Helper()
-	before := routines()
+	snapshot := routines()
 	t.Cleanup(func() {
 		t.Helper()
-		//time.Sleep(100 * time.Millisecond)
 
-		active := routines().subtract(before)
+		active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 		if len(active) > 0 {
 			t.Errorf("%d still active:\n%s", len(active), active.String())
 		}
@@ -35,9 +39,9 @@ func Check(t *testing.T) {
 
 type goroutines map[string]string
 
-func (a goroutines) String() string {
+func (gs goroutines) String() string {
 	var b strings.Builder
-	for _, g := range a {
+	for _, g := range gs {
 		if b.Len() > 0 {
 			b.WriteString("\n\n")
 		}
@@ -46,23 +50,34 @@ func (a goroutines) String() string {
 	return b.String()
 }
 
-func (a goroutines) subtract(b goroutines) goroutines {
-	for k := range b {
-		delete(a, k)
+func (gs goroutines) stillActiveAfter(deadline time.Time) goroutines {
+	for time.Now().Before(deadline) {
+		if len(gs.stillActive()) == 0 {
+			return nil
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
-	return a
+	return gs.stillActive()
+}
+
+func (gs goroutines) stillActive() goroutines {
+	active := routines()
+	for id := range gs {
+		delete(active, id)
+	}
+	return active
 }
 
 func routines() goroutines {
-	result := make(map[string]string)
+	gs := make(map[string]string)
 	for _, g := range strings.Split(stack(), "\n\n") {
 		header, _, _ := strings.Cut(g, "\n")
 		// goroutine 8 [chan receive]:
 		// goroutine 8 [runnable]:
 		id, _, _ := strings.Cut(header, "[")
-		result[id] = g
+		gs[id] = g
 	}
-	return result
+	return gs
 }
 
 func stack() string {

@@ -18,7 +18,7 @@ func CheckMain(m *testing.M) {
 	code := m.Run()
 	active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 	if len(active) > 0 {
-		fmt.Printf("%d still active:\n%s", len(active), active.String())
+		fmt.Printf("noleak: %d still active:\n%s", len(active), active.String())
 		code = 1
 	}
 	os.Exit(code)
@@ -32,7 +32,7 @@ func Check(t *testing.T) {
 
 		active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 		if len(active) > 0 {
-			t.Errorf("%d still active:\n%s", len(active), active.String())
+			t.Errorf("noleak: %d still active:\n%s", len(active), active.String())
 		}
 	})
 }

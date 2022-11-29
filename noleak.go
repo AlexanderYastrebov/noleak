@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -75,13 +76,16 @@ func routines() goroutines {
 	return gs
 }
 
+var bufferSize int64 = 1024
+
 func stack() string {
-	buf := make([]byte, 1024)
 	for {
+		bs := atomic.LoadInt64(&bufferSize)
+		buf := make([]byte, bs)
 		n := runtime.Stack(buf, true)
 		if n < len(buf) {
 			return string(buf[:n])
 		}
-		buf = make([]byte, 2*len(buf))
+		atomic.CompareAndSwapInt64(&bufferSize, bs, 2*bs)
 	}
 }

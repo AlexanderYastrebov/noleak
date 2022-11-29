@@ -2,10 +2,10 @@
 
 It compares the list of active goroutines before and after the test and raises an error on mismatch.
 
-See [example_test.go](example_test.go).
+See and run [example_test.go](example_test.go):
 
 ```sh
-GODEBUG="tracebackancestors=1" go test . -tags=example,main
+GODEBUG="tracebackancestors=1" go test . -tags=example
 ```
 
 ## Credits

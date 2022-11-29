@@ -8,16 +8,14 @@ import (
 	"time"
 )
 
-var (
-	checkTimeout = 1 * time.Second
-)
+const checkTimeout = 1 * time.Second
 
 func CheckMain(m *testing.M) (code int) {
 	snapshot := routines()
 	code = m.Run()
 	active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 	if len(active) > 0 {
-		fmt.Printf("noleak: %d still active:\n%s", len(active), active.String())
+		fmt.Println(active)
 		code = 1
 	}
 	return
@@ -28,10 +26,9 @@ func Check(t *testing.T) {
 	snapshot := routines()
 	t.Cleanup(func() {
 		t.Helper()
-
 		active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 		if len(active) > 0 {
-			t.Errorf("noleak: %d still active:\n%s", len(active), active.String())
+			t.Error(active)
 		}
 	})
 }
@@ -40,10 +37,9 @@ type goroutines map[string]string
 
 func (gs goroutines) String() string {
 	var b strings.Builder
+	fmt.Fprintf(&b, "noleak: %d active", len(gs))
 	for _, g := range gs {
-		if b.Len() > 0 {
-			b.WriteString("\n\n")
-		}
+		b.WriteString("\n\n")
 		b.WriteString(g)
 	}
 	return b.String()

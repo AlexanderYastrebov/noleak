@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const checkTimeout = 1 * time.Second
+const checkTimeout = 5 * time.Second
 
 func CheckMain(m *testing.M) (code int) {
 	snapshot := routines()

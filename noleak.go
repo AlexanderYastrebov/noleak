@@ -20,8 +20,27 @@ const checkTimeout = 5 * time.Second
 //		os.Exit(noleak.CheckMain(m))
 //	}
 func CheckMain(m *testing.M) (code int) {
+	return CheckMainFunc(m.Run)
+}
+
+// CheckMainFunc prints active goroutines after m ends.
+// It returns result of m or non-zero if there are active goroutines.
+//
+// Example:
+//
+//	func TestMain(m *testing.M) {
+//		os.Exit(noleak.CheckMainFunc(func() int {
+//			code := m.Run()
+//
+//			// perform cleanup
+//			...
+//
+//			return code
+//		}))
+//	}
+func CheckMainFunc(m func() int) (code int) {
 	snapshot := routines()
-	code = m.Run()
+	code = m()
 	active := snapshot.stillActiveAfter(time.Now().Add(checkTimeout))
 	if len(active) > 0 {
 		fmt.Println(active)

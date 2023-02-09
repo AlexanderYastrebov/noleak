@@ -11,6 +11,14 @@ import (
 
 const checkTimeout = 5 * time.Second
 
+// CheckMain prints active goroutines after all tests end.
+// It returns result of m.Run() or non-zero if there are active goroutines.
+//
+// Example:
+//
+//	func TestMain(m *testing.M) {
+//		os.Exit(noleak.CheckMain(m))
+//	}
 func CheckMain(m *testing.M) (code int) {
 	snapshot := routines()
 	code = m.Run()
@@ -22,6 +30,15 @@ func CheckMain(m *testing.M) (code int) {
 	return
 }
 
+// Check reports test error if there are active goroutines after test ends.
+//
+// Example:
+//
+//	func TestLeak(t *testing.T) {
+//		noleak.Check(t)
+//
+//		...
+//	}
 func Check(t *testing.T) {
 	t.Helper()
 	snapshot := routines()

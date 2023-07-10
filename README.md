@@ -11,12 +11,12 @@ Tests using http.Client or http.DefaultClient [should close idle connections](ex
 See and run all [examples](examples):
 
 ```sh
-GODEBUG=tracebackancestors=1 go test ./examples/...
+GODEBUG=tracebackancestors=10 go test ./examples/...
 ```
 
 Setting `GODEBUG=tracebackancestors=N` extends tracebacks with the stacks at
 which goroutines were created, where N limits the number of ancestor goroutines to
-report, see https://pkg.go.dev/runtime.
+report, see https://pkg.go.dev/runtime#hdr-Environment_Variables.
 
 
 ## Credits

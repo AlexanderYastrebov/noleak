@@ -35,11 +35,34 @@ func TestLeakGlobal(t *testing.T) {
 
 func TestLeak(t *testing.T) {
 	l1 := newLeaky()
-	l2 := newLeaky()
-
 	l1.run()
-	l2.run()
+	//l1.done()
+}
 
-	l1.done()
-	//l2.done()
+func TestLeakNested(t *testing.T) {
+	t.Run("nested", func(t *testing.T) {
+		l1 := newLeaky()
+		l1.run()
+		//l1.done()
+	})
+}
+
+func TestLeakInner(t *testing.T) {
+	doLeak(5)
+}
+
+func TestLeakNestedInner(t *testing.T) {
+	t.Run("nested", func(t *testing.T) {
+		doLeak(5)
+	})
+}
+
+func doLeak(n int) {
+	if n == 0 {
+		l1 := newLeaky()
+		l1.run()
+		//l1.done()
+	} else {
+		doLeak(n - 1)
+	}
 }

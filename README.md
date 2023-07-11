@@ -2,17 +2,22 @@
 
 It compares the list of active goroutines before and after the test and reports an error on mismatch.
 
-See and run [example_test.go](example_test.go):
+To enable detector add a [main_test.go](examples/checkmain/main_test.go) file to the package.
+
+To check a specific test only add `noleak.Check(t)` [at the top](examples/check/example_test.go).
+
+Tests using http.Client or http.DefaultClient [should close idle connections](examples/httpclient/example_test.go).
+
+See and run all [examples](examples):
 
 ```sh
-GODEBUG=tracebackancestors=1 go test . -tags=example
+GODEBUG=tracebackancestors=1 go test ./examples/...
 ```
 
 Setting `GODEBUG=tracebackancestors=N` extends tracebacks with the stacks at
 which goroutines were created, where N limits the number of ancestor goroutines to
 report, see https://pkg.go.dev/runtime.
 
-Tests using http.Client or http.DefaultClient should close idle connections, see [httpclient_test.go](httpclient_test.go).
 
 ## Credits
 

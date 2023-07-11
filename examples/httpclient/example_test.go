@@ -1,15 +1,11 @@
-package noleak_test
+package httpclient
 
 import (
 	"net/http"
 	"testing"
-
-	"github.com/AlexanderYastrebov/noleak"
 )
 
 func TestDefaultHttpClient(t *testing.T) {
-	noleak.Check(t)
-
 	defer http.DefaultClient.CloseIdleConnections()
 
 	rsp, err := http.Get("https://pkg.go.dev/github.com/AlexanderYastrebov/noleak")
@@ -20,8 +16,6 @@ func TestDefaultHttpClient(t *testing.T) {
 }
 
 func TestHttpClient(t *testing.T) {
-	noleak.Check(t)
-
 	client := &http.Client{}
 	defer client.CloseIdleConnections()
 
